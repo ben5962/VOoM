@@ -24,3 +24,4 @@ au BufFilePost *_VOOM\d\+ call voom#TreeSessionLoad()
 "
 " ma commande sup
 com! -nargs=? Voomextract call voom#Extract(<q-args>)
+

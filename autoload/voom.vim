@@ -176,6 +176,8 @@ com! Voomquit call voom#DeleteOutline()
 com! VoomQuitAll call voom#DeleteOutlines()
 com! -nargs=? Voominfo call voom#Voominfo(<q-args>)
 
+com! -nargs=? VoomExtract call voom#Extract(<q-args>)
+
 """ development helpers
 if exists('g:voom_create_devel_commands')
     " reload autoload/voom.vim (outlines are preserved)
@@ -3085,7 +3087,7 @@ endfunc
 
 
 
-"---LITTERATE PROGRAMMING (Voom#Extract)---{{{{1
+"---LITTERATE PROGRAMMING (Voom#Extract)---{{{1
 func! voom#Extract(qargs) "{{{2
 " Extract text from the current node (Tree or Body, include subnodes) or fold
 " (non-VOoM buffer, include subfolds) into a file.
@@ -3098,68 +3100,15 @@ func! voom#Extract(qargs) "{{{2
     endif
     let FT = getbufvar(bnr, '&ft')
 
-"    if a:qargs==#'vim'
-"        let scriptType = 'vim'
-"    elseif a:qargs==#'py' || a:qargs==#'python'
-"        let scriptType = 'python'
-"    elseif a:qargs!=''
-"        call voom#ErrorMsg('VOoM: unsupported script type: "'.a:qargs.'"')
-"        return
-"    elseif FT==#'vim'
-"        let scriptType = 'vim'
-"    elseif FT==#'python'
-"        let scriptType = 'python'
-"    else
-"        call voom#ErrorMsg('VOoM: unsupported script type: "'.FT.'"')
-"        return
-"    endif
-
     " Get script lines.
     let [bufType, body, bln1, bln2] = voom#GetExecRange(line('.'))
     if body<1 | return | endif
 
-    " Extract lines: copy list of lines to register and write it to a file
+    " Extract lines: copy list of lines to lines and write it to a file
     let lines = getbufline(body, bln1, bln2)
     if lines==[] | return | endif
-    let reg_z = getreg('z')
-    let reg_z_mode = getregtype('z')
-    let script = join(lines, "\n") . "\n"
-    call setreg('z', script, "l")
-	call writefile(getreg('z'),a:qargs)
+    call writefile(lines, a:qargs)
 
-    " Execute Vim script: Copy list of lines to register and execute it.
-    " Problem: Python errors do not terminate script and Python tracebacks are
-    " not printed. They are printed to the PyLog if it's enabled. Probably
-    " caused by 'catch', but without it foldtext is temporarily messed up in
-    " all windows after any error.
-    "if scriptType==#'vim'
-    "    let lines = getbufline(body, bln1, bln2)
-    "    if lines==[] | return | endif
-    "    let reg_z = getreg('z')
-    "    let reg_z_mode = getregtype('z')
-    "    let script = join(lines, "\n") . "\n"
-    "    call setreg('z', script, "l")
-    "    try
-    "        call s:ExecVim()
-    "    catch
-    "        call voom#ErrorMsg(v:exception)
-    "    finally
-    "        call setreg('z', reg_z, reg_z_mode)
-    "        echo '---end of Vim script ('.bln1.'-'.bln2.')---'
-    "    endtry
-    "" Execute Python script.
-    "elseif scriptType==#'python'
-    "    " do not change, see ./voom/voom_vimplugin2657/voom_vim.py#id_20101214100357
-    "    if s:voom_logbnr
-    "        try
-    "            exe s:PYCMD "_VOoM2657.voom_Exec()"
-    "        catch
-    "            exe s:PYCMD "print(vim.eval('v:exception'))"
-    "        endtry
-    "    else
-    "        exe s:PYCMD "_VOoM2657.voom_Exec()"
-    "    endif
-    "endif
 endfunc
 
 
