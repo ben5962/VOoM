@@ -21,4 +21,6 @@ com! -nargs=? Voomexec call voom#Exec(<q-args>)
 " support for Vim sessions (:mksession)
 au BufFilePost __PyLog__ call voom#LogSessionLoad()
 au BufFilePost *_VOOM\d\+ call voom#TreeSessionLoad()
-
+"
+" ma commande sup
+com! -nargs=? Voomextract call voom#Extract(<q-args>)
